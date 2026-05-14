@@ -14,6 +14,9 @@ public class Subject {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToMany(mappedBy = "subject")
+    private Subject subject;
+
     public Long getId() {
         return id;
     }

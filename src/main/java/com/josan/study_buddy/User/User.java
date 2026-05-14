@@ -1,8 +1,12 @@
 package com.josan.study_buddy.User;
 
+import com.josan.study_buddy.Subject.Subject;
+import com.josan.study_buddy.Topic.Topic;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class User {
@@ -13,7 +17,13 @@ public class User {
     private String name;
     private String email;
     private String user_tier;
-    private LocalDateTime last_updated;
+    private LocalDateTime last_updated; //TODO: check naming convention for this (camelcase vs snake)
+
+    @OneToMany(mappedBy = "user")
+    private Set<Subject> subjects = new HashSet<>();
+
+    @OneToMany(mappedBy = "user")
+    private Set<Topic> topics = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -66,6 +76,22 @@ public class User {
 
     public void setUser_tier(String user_tier) {
         this.user_tier = user_tier;
+    }
+
+    public Set<Subject> getSubjects() {
+        return subjects;
+    }
+
+    public void setSubjects(Set<Subject> subjects) {
+        this.subjects = subjects;
+    }
+
+    public Set<Topic> getTopics() {
+        return topics;
+    }
+
+    public void setTopics(Set<Topic> topics) {
+        this.topics = topics;
     }
 
     public LocalDateTime getLast_updated() {
