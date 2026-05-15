@@ -23,10 +23,34 @@ public class SubjectController {
         return subjectService.findAllSubjects();
     }
 
+    @GetMapping("/{id}")
+    public Subject getSubjectById(@PathVariable Long id) {
+        return subjectService.findSubjectById(id).orElseThrow();
+    }
+
     @PostMapping("/")
     public Subject addSubject(@RequestBody SubjectRequest request) {
         Subject subject = new Subject();
         subject = subjectService.buildSubject(request);
         return subjectService.saveSubject(subject);
+    }
+
+    @PutMapping("/{id}")
+    public Subject updateSubject(
+            @RequestBody SubjectRequest request,
+            @PathVariable Long id) {
+        Subject subject = new Subject();
+        // check if the user exists before doing an update
+        Subject existingSubject = subjectService.findSubjectById(id)
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+        existingSubject.setUser(userService.findUserById(request.getUserId()).orElseThrow());
+        existingSubject.setName(request.getName());
+        return subjectService.saveSubject(subject);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteSubjectById(@PathVariable Long id){
+        subjectService.deleteSubjectById(id);
     }
 }
