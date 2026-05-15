@@ -17,10 +17,10 @@ public class Topic {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
     @ManyToOne
     @JoinColumn(name = "subject_id")
-    @JsonIgnore
     private Subject subject;
 
     public Long getId() {
