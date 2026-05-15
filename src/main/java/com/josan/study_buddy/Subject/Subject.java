@@ -1,6 +1,10 @@
 package com.josan.study_buddy.Subject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.josan.study_buddy.Topic.Topic;
 import com.josan.study_buddy.User.User;
 import jakarta.persistence.*;
+
+import java.util.Set;
 
 @Entity
 public class Subject {
@@ -12,10 +16,11 @@ public class Subject {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     @OneToMany(mappedBy = "subject")
-    private Subject subject;
+    private Set<Topic> topic;
 
     public Long getId() {
         return id;
