@@ -1,5 +1,6 @@
 package com.josan.study_buddy.Topic;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.josan.study_buddy.Subject.Subject;
 import com.josan.study_buddy.User.User;
 import jakarta.persistence.*;
@@ -19,6 +20,7 @@ public class Topic {
     private User user;
     @ManyToOne
     @JoinColumn(name = "subject_id")
+    @JsonIgnore
     private Subject subject;
 
     public Long getId() {
