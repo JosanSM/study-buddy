@@ -26,10 +26,7 @@ public class SubjectController {
     @PostMapping("/")
     public Subject addSubject(@RequestBody SubjectRequest request) {
         Subject subject = new Subject();
-        User user = userService.findUserById(request.getUserId()).orElseThrow();
-
-        subject.setName(request.getName());
-        subject.setUser(user);
+        subject = subjectService.buildSubject(request);
         return subjectService.saveSubject(subject);
     }
 }
