@@ -39,14 +39,13 @@ public class SubjectController {
     public Subject updateSubject(
             @RequestBody SubjectRequest request,
             @PathVariable Long id) {
-        Subject subject = new Subject();
         // check if the user exists before doing an update
         Subject existingSubject = subjectService.findSubjectById(id)
                 .orElseThrow(() -> new RuntimeException("Subject not found"));
 
         existingSubject.setUser(userService.findUserById(request.getUserId()).orElseThrow());
         existingSubject.setName(request.getName());
-        return subjectService.saveSubject(subject);
+        return subjectService.saveSubject(existingSubject);
     }
 
     @DeleteMapping("/{id}")
