@@ -3,7 +3,10 @@ import com.josan.study_buddy.Subject.Subject;
 import com.josan.study_buddy.Subject.SubjectService;
 import com.josan.study_buddy.User.User;
 import com.josan.study_buddy.User.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -26,18 +29,45 @@ public class TopicController {
         return topicService.findAllTopics();
     }
 
+    @GetMapping("/{id}")
+    public Topic getTopicById(@PathVariable Long id) {
+        return topicService.findTopicById(id).orElseThrow();
+    }
+
     @PostMapping("/")
-    public Topic addTopic(@RequestBody TopicRequest request){ //TODO: clarify if this should be abstracted out into the service layer
-        Topic topic = new Topic();
+    public Topic addTopic(@RequestBody TopicRequest request){
+        Topic topic = topicService.buildTopic(request);
+        return topicService.saveTopic(topic);
+    }
+
+    @PutMapping("/{id}")
+    public Topic updateTopic(
+            @RequestBody TopicRequest request,
+            @PathVariable Long id) {
+        Topic existing = topicService.findTopicById(id)
+                .orElseThrow(() -> new RuntimeException(String.format("No topic found with id %d",id)));
+
         User user = userService.findUserById(request.getUserId()).orElseThrow();
         Subject subject = subjectService.findSubjectById(request.getSubjectId()).orElseThrow();
 
-        topic.setTitle(request.getTitle());
-        topic.setNotes(request.getNotes());
-        topic.setTopicStatus(request.getTopicStatus());
-        topic.setUser(user);
-        topic.setSubject(subject);
+        existing.setTopicStatus(request.getTopicStatus());
+        existing.setNotes(request.getNotes());
+        existing.setTitle(request.getTitle());
+        existing.setUser(user);
+        existing.setSubject(subject);
 
-        return topicService.saveTopic(topic);
+        return topicService.saveTopic(existing);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTopicById(@PathVariable Long id) {
+        if(!topicService.existsById(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Topic not found"
+            );
+        }
+        topicService.deleteTopicById(id);
+        return ResponseEntity.noContent().build();
     }
 }
