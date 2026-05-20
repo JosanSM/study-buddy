@@ -11,7 +11,8 @@ import java.util.List;
 public class SubjectController {
 
     private final SubjectService subjectService;
-    private final UserService userService;
+        // TODO: i dont think userService is needed in SubjectController.
+    private final UserService userService; 
 
     public SubjectController(SubjectService subjectService, UserService userService)  {
         this.subjectService = subjectService;
@@ -32,7 +33,9 @@ public class SubjectController {
     public Subject addSubject(@RequestBody SubjectRequest request) {
         Subject subject = new Subject();
         subject = subjectService.buildSubject(request);
-        return subjectService.saveSubject(subject);
+        // TODO: I think we can create a new subjectService.addSubject(subject) method instead of using saveSubject. This way
+        // we can add buisness logic specific to adding a new subject.
+        return subjectService.saveSubject(subject); 
     }
 
     @PutMapping("/{id}")
@@ -40,6 +43,8 @@ public class SubjectController {
             @RequestBody SubjectRequest request,
             @PathVariable Long id) {
         // check if the user exists before doing an update
+
+        // TODO: You are adding buisness logic into controller layer here. this method could be simplivied to a subjectService.updateSubjeect(subject) method
         Subject existingSubject = subjectService.findSubjectById(id)
                 .orElseThrow(() -> new RuntimeException("Subject not found"));
 

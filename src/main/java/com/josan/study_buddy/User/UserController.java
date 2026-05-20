@@ -48,6 +48,11 @@ public class UserController {
                 .body(AddUserResponse.from(user));
     }
 
+
+    /*
+        TODO: we need to move buisness logic from controller to service layer. getting user, setting new user attributes, and saving should be 
+        done in the service layer.
+    */
     @PutMapping("/")
     public ResponseEntity<UpdateUserRequest> updateUser(@Valid @RequestBody UpdateUserRequest request) { // TODO: clarify whether this type a methods need some type of additional layer fromm the front end to avoid manipulation through dev tools
         if(!userService.userExists(request.getId())) {
@@ -77,6 +82,10 @@ public class UserController {
 
         // online I found that it is better to return no content, but this concerns me because it doesn't really confirm if the entity was deleted
         // I could modify the deleteById method to return a boolean and build validation logic around that. Is that ideal?
+
+        /*
+        TOOD: for above question, if it failed to delete we would throw errors and catch them and throw the approrpiate response code.
+        */
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
     }

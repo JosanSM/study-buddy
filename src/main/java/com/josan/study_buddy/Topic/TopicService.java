@@ -37,6 +37,12 @@ public class TopicService {
         topicRepository.deleteById(id);
     }
 
+    /*
+        TODO: optional, i dont love how topicService.buildTopic is its own service method. 
+        I'd rather see something like like 
+        Topic topic = request.toTopic(subject,user)
+    */
+
     public Topic buildTopic(TopicRequest request) {
         Topic topic = new Topic();
 
