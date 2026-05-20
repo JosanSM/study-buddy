@@ -44,12 +44,18 @@ public class TopicController {
     public Topic updateTopic(
             @RequestBody TopicRequest request,
             @PathVariable Long id) {
+        
+        /*
+        TODO: We need to move a lot of this logic to the TopicService class. This method finds topics, finds user,
+        updates topic, then saves it. All of this should live in topicService.updateTopic() method
+        */
         Topic existing = topicService.findTopicById(id)
                 .orElseThrow(() -> new RuntimeException(String.format("No topic found with id %d",id)));
 
         User user = userService.findUserById(request.getUserId()).orElseThrow();
         Subject subject = subjectService.findSubjectById(request.getSubjectId()).orElseThrow();
 
+        // TODO: look into builder pattern
         existing.setTopicStatus(request.getTopicStatus());
         existing.setNotes(request.getNotes());
         existing.setTitle(request.getTitle());
@@ -61,6 +67,7 @@ public class TopicController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTopicById(@PathVariable Long id) {
+        //TODO: I would move this check into the service method. that way, any service that wants to deleteTopicById will have that check in place
         if(!topicService.existsById(id)) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,

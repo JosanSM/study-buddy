@@ -6,7 +6,15 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+
+
+/*
+TODO: Consider creating a SubjectResponse object that is a DTO object. Ideally we don't return the Subject 
+object to the user because that is a JPA entity that maps directly to a database. That can be different than the Subject
+API response we want to return.
+*/
 @Service
+// TOOD: Add @Transactional annotation here
 public class SubjectService {
     SubjectRepository subjectRepository;
     UserService userService;
@@ -24,6 +32,7 @@ public class SubjectService {
         return subjectRepository.findById(id);
     }
 
+    // TOOD: Consider adding @Transactional here for anything that saves to db
     public Subject saveSubject(Subject subject) {
         return subjectRepository.save(subject);
     }
@@ -38,6 +47,11 @@ public class SubjectService {
 
         subject.setName(request.getName());
         subject.setUser(user);
-        return this.saveSubject(subject);
+        /*
+        TODO: This should not save the subject object into the database.
+         It should only build the subject object. It is not implied that buildSubject saves the object to the database
+         so you end up calling saveSubject twice (example being POST /subject endpoint)
+        */
+        return this.saveSubject(subject); 
     }
 }
