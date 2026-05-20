@@ -1,5 +1,6 @@
 package com.josan.study_buddy.User;
 
+import com.josan.study_buddy.User.UserDto.AddUserRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,5 +29,18 @@ public class UserService {
 
     public void deleteUserById(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public Boolean userExists(Long id) {
+        return userRepository.existsById(id);
+    }
+
+    public User buildUser(AddUserRequest userRequest) {
+        User user = new User();
+        user.setEmail(userRequest.getEmail());
+        user.setUser_tier(userRequest.getUserTier());
+        user.setName(userRequest.getName());
+
+        return user;
     }
 }
