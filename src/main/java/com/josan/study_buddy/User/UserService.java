@@ -1,6 +1,8 @@
 package com.josan.study_buddy.User;
 
 import com.josan.study_buddy.User.UserDto.AddUserRequest;
+import com.josan.study_buddy.User.UserDto.GenericUserResponse;
+import com.josan.study_buddy.User.UserDto.UpdateUserRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,8 +17,16 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
+    public List<GenericUserResponse> findAllUsers() {
+
+        return userRepository.findAll()
+                .stream()
+                .map(user -> GenericUserResponse.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .build())
+                .toList();
     }
 
     public Optional<User> findUserById(Long id) {

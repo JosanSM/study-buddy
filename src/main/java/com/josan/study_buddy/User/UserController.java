@@ -22,9 +22,11 @@ public class UserController {
     }
 
     @GetMapping("/")
-    public List<User> getAllUsers() {
-        System.out.println("DEBUG");
-        return userService.findAllUsers();
+    public ResponseEntity<List<GenericUserResponse>> getAllUsers() {
+
+        return ResponseEntity.ok(
+                userService.findAllUsers()
+        );
     }
 
     @GetMapping("/{id}")
@@ -53,11 +55,6 @@ public class UserController {
         if(!userService.userExists(request.getId())) {
             return ResponseEntity.notFound().build();
         }
-
-        User existingUser = userService.findUserById(request.getId()).orElseThrow();
-        existingUser.setName(request.getName());
-        existingUser.setEmail(request.getEmail());
-        existingUser.setUser_tier(request.getUserTier()); // TODO: move this eventually to its own method to avoid users manipulating it
 
         try {
             userService.saveUser(existingUser);
