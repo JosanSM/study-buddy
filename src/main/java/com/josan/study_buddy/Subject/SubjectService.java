@@ -38,6 +38,6 @@ public class SubjectService {
 
         subject.setName(request.getName());
         subject.setUser(user);
-        return this.saveSubject(subject);
+        return subject;
     }
 }
