@@ -45,6 +45,19 @@ public class UserService {
         return userRepository.existsById(id);
     }
 
+    public User updateUser(UpdateUserRequest request) {
+
+        User existingUser = this.findUserById(request.getId()).orElseThrow();
+        existingUser.setName(request.getName());
+        existingUser.setEmail(request.getEmail());
+        existingUser.setUser_tier(request.getUserTier()); // TODO: move this eventually to its own method to avoid users manipulating it
+        try {
+            return this.saveUser(existingUser);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update the user");
+        }
+    }
+
     public User buildUser(AddUserRequest userRequest) {
         User user = new User();
         user.setEmail(userRequest.getEmail());

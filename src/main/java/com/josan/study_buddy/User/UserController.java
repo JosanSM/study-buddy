@@ -50,15 +50,14 @@ public class UserController {
                 .body(AddUserResponse.from(user));
     }
 
-    @PutMapping("/")
-    public ResponseEntity<UpdateUserRequest> updateUser(@Valid @RequestBody UpdateUserRequest request) { // TODO: clarify whether this type a methods need some type of additional layer fromm the front end to avoid manipulation through dev tools
+    @PutMapping("/") // TODO: should I Refactor my DTO classes to have a better inheritance relationship between them? like, having a base UserRequest/UserResponse and extend those as needed
+    public ResponseEntity<GenericUserResponse> updateUser(@Valid @RequestBody UpdateUserRequest request) { // TODO: clarify whether this type a methods need some type of additional layer fromm the front end to avoid manipulation through dev tools
         if(!userService.userExists(request.getId())) {
             return ResponseEntity.notFound().build();
         }
 
         try {
-            userService.saveUser(existingUser);
-            return ResponseEntity.ok(UpdateUserRequest.from(existingUser));
+            return ResponseEntity.ok(GenericUserResponse.from(userService.updateUser(request)));
         } catch (RuntimeException e) {
           return ResponseEntity.internalServerError().build();
         } catch (Exception e) {

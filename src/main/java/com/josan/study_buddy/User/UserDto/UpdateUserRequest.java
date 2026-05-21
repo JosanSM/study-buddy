@@ -5,7 +5,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.*;
 
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class UpdateUserRequest {
     @NotNull
     Long id;
@@ -26,44 +33,5 @@ public class UpdateUserRequest {
                 user.getEmail(),
                 user.getUser_tier()
         );
-    }
-
-    public UpdateUserRequest(Long id, String name, String email, String userTier) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.userTier = userTier;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUserTier() {
-        return userTier;
-    }
-
-    public void setUserTier(String userTier) {
-        this.userTier = userTier;
     }
 }
