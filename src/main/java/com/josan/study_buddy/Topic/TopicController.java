@@ -1,6 +1,7 @@
 package com.josan.study_buddy.Topic;
 import com.josan.study_buddy.Subject.Subject;
 import com.josan.study_buddy.Subject.SubjectService;
+import com.josan.study_buddy.Topic.TopicDto.TopicRequest;
 import com.josan.study_buddy.User.User;
 import com.josan.study_buddy.User.UserService;
 import org.springframework.http.HttpStatus;
@@ -60,7 +61,7 @@ public class TopicController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTopicById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTopicById(@PathVariable Long id) { //TODO: Revise logic - why is it returning no content in happy path?
         if(!topicService.existsById(id)) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,

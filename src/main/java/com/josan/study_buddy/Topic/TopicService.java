@@ -1,6 +1,7 @@
 package com.josan.study_buddy.Topic;
 import com.josan.study_buddy.Subject.Subject;
 import com.josan.study_buddy.Subject.SubjectService;
+import com.josan.study_buddy.Topic.TopicDto.TopicRequest;
 import com.josan.study_buddy.User.User;
 import com.josan.study_buddy.User.UserService;
 import org.springframework.stereotype.Service;
