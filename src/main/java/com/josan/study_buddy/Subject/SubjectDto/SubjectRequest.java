@@ -1,23 +1,17 @@
 package com.josan.study_buddy.Subject.SubjectDto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SubjectRequest {
+    @NotNull
     private Long userId;
+    @NotBlank
     private String name;
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long id) {
-        this.userId = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }
