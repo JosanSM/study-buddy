@@ -40,4 +40,15 @@ public class SubjectService {
         subject.setUser(user);
         return subject;
     }
+
+    public Subject updateSubject(SubjectRequest request) {
+        // check if the user exists before doing an update
+        Subject existingSubject = this.findSubjectById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+        existingSubject.setUser(userService.findUserById(request.getUserId()).orElseThrow());
+        existingSubject.setName(request.getName());
+
+        return this.saveSubject(existingSubject);
+    }
 }

@@ -1,7 +1,7 @@
 package com.josan.study_buddy.Subject;
 
-import com.josan.study_buddy.User.User;
 import com.josan.study_buddy.User.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,11 +11,9 @@ import java.util.List;
 public class SubjectController {
 
     private final SubjectService subjectService;
-    private final UserService userService;
 
-    public SubjectController(SubjectService subjectService, UserService userService)  {
+    public SubjectController(SubjectService subjectService)  {
         this.subjectService = subjectService;
-        this.userService = userService;
     }
 
     @GetMapping("/")
@@ -35,17 +33,16 @@ public class SubjectController {
         return subjectService.saveSubject(subject);
     }
 
-    @PutMapping("/{id}")
-    public Subject updateSubject(
-            @RequestBody SubjectRequest request,
-            @PathVariable Long id) {
-        // check if the user exists before doing an update
-        Subject existingSubject = subjectService.findSubjectById(id)
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
+    @PutMapping("/")
+    public ResponseEntity<Subject> updateSubject(
+            @RequestBody SubjectRequest request) {
 
-        existingSubject.setUser(userService.findUserById(request.getUserId()).orElseThrow());
-        existingSubject.setName(request.getName());
-        return subjectService.saveSubject(existingSubject);
+        try {
+            return ResponseEntity.ok(subjectService.updateSubject(request));
+
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
