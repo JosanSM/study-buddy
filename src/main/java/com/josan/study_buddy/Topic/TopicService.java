@@ -2,6 +2,7 @@ package com.josan.study_buddy.Topic;
 import com.josan.study_buddy.Subject.Subject;
 import com.josan.study_buddy.Subject.SubjectService;
 import com.josan.study_buddy.Topic.TopicDto.TopicRequest;
+import com.josan.study_buddy.Topic.TopicDto.UpdateTopicRequest;
 import com.josan.study_buddy.User.User;
 import com.josan.study_buddy.User.UserService;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,22 @@ public class TopicService {
         topic.setUser(user);
 
         return topic;
+    }
+
+    public Topic updateTopic(UpdateTopicRequest request) {
+        Topic existing = this.findTopicById(request.getId())
+                .orElseThrow(() -> new RuntimeException(String.format("No topic found with id %d",request.getId())));
+
+        User user = userService.findUserById(request.getUserId()).orElseThrow();
+        Subject subject = subjectService.findSubjectById(request.getSubjectId()).orElseThrow();
+
+        existing.setTopicStatus(request.getTopicStatus());
+        existing.setNotes(request.getNotes());
+        existing.setTitle(request.getTitle());
+        existing.setUser(user);
+        existing.setSubject(subject);
+
+        return this.saveTopic(existing);
     }
 
     public Boolean existsById(Long id) {

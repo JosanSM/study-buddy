@@ -1,8 +1,7 @@
 package com.josan.study_buddy.Topic;
-import com.josan.study_buddy.Subject.Subject;
 import com.josan.study_buddy.Subject.SubjectService;
 import com.josan.study_buddy.Topic.TopicDto.TopicRequest;
-import com.josan.study_buddy.User.User;
+import com.josan.study_buddy.Topic.TopicDto.UpdateTopicRequest;
 import com.josan.study_buddy.User.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +15,9 @@ import java.util.List;
 public class TopicController {
 
     private final TopicService topicService;
-    private final UserService userService;
-    private final SubjectService subjectService;
 
-    public TopicController(TopicService topicService, UserService userService, SubjectService subjectService) {
+    public TopicController(TopicService topicService) {
         this.topicService = topicService;
-        this.userService = userService;
-        this.subjectService = subjectService;
     }
 
     @GetMapping("/")
@@ -41,23 +36,15 @@ public class TopicController {
         return topicService.saveTopic(topic);
     }
 
-    @PutMapping("/{id}")
-    public Topic updateTopic(
-            @RequestBody TopicRequest request,
-            @PathVariable Long id) {
-        Topic existing = topicService.findTopicById(id)
-                .orElseThrow(() -> new RuntimeException(String.format("No topic found with id %d",id)));
+    @PutMapping("/")
+    public ResponseEntity<Topic> updateTopic(
+            @RequestBody UpdateTopicRequest request) {
+        try {
+            return ResponseEntity.ok(topicService.updateTopic(request));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build(); //TODO: add validation fr not found scenarios, return 404 for those
+        }
 
-        User user = userService.findUserById(request.getUserId()).orElseThrow();
-        Subject subject = subjectService.findSubjectById(request.getSubjectId()).orElseThrow();
-
-        existing.setTopicStatus(request.getTopicStatus());
-        existing.setNotes(request.getNotes());
-        existing.setTitle(request.getTitle());
-        existing.setUser(user);
-        existing.setSubject(subject);
-
-        return topicService.saveTopic(existing);
     }
 
     @DeleteMapping("/{id}")
