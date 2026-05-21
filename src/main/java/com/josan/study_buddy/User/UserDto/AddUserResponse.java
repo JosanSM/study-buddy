@@ -1,9 +1,16 @@
 package com.josan.study_buddy.User.UserDto;
 
 import com.josan.study_buddy.User.User;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class AddUserResponse {
     private Long id;
     private String name;
@@ -22,55 +29,5 @@ public class AddUserResponse {
         responseObject.setLastUpdated(user.getLast_updated());
 
         return responseObject;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUserTier() {
-        return userTier;
-    }
-
-    public void setUserTier(String userTier) {
-        this.userTier = userTier;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public LocalDateTime getLastUpdated() {
-        return lastUpdated;
-    }
-
-    public void setLastUpdated(LocalDateTime lastUpdated) {
-        this.lastUpdated = lastUpdated;
-    }
-
-    @Override
-    public String toString() {
-        return "UserRequest{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", userTier='" + userTier + '\'' +
-                '}';
     }
 }
