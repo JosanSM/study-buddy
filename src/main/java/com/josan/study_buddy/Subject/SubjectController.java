@@ -1,6 +1,6 @@
 package com.josan.study_buddy.Subject;
 
-import com.josan.study_buddy.User.UserService;
+import com.josan.study_buddy.Subject.SubjectDto.SubjectRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

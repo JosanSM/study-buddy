@@ -1,4 +1,4 @@
-package com.josan.study_buddy.Subject;
+package com.josan.study_buddy.Subject.SubjectDto;
 
 
 public class SubjectRequest {
