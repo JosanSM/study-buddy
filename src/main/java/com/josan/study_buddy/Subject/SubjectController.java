@@ -1,5 +1,6 @@
 package com.josan.study_buddy.Subject;
 
+import com.josan.study_buddy.Subject.SubjectDto.GenericSubjectResponse;
 import com.josan.study_buddy.Subject.SubjectDto.SubjectRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +18,9 @@ public class SubjectController {
     }
 
     @GetMapping("/")
-    public List<Subject> getAllSubjects() {
-        return subjectService.findAllSubjects();
+    public ResponseEntity<List<GenericSubjectResponse>> getAllSubjects() {
+
+        return ResponseEntity.ok(subjectService.findAllSubjects());
     }
 
     @GetMapping("/{id}")

@@ -1,7 +1,9 @@
 package com.josan.study_buddy.Subject;
+import com.josan.study_buddy.Subject.SubjectDto.GenericSubjectResponse;
 import com.josan.study_buddy.Subject.SubjectDto.SubjectRequest;
 import com.josan.study_buddy.User.User;
 import com.josan.study_buddy.User.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +19,15 @@ public class SubjectService {
         this.userService = userService;
     }
 
-    public List<Subject> findAllSubjects() {
-        return subjectRepository.findAll();
+    public List<GenericSubjectResponse> findAllSubjects() {
+
+        return subjectRepository.findAll()
+                .stream()
+                .map(subject -> GenericSubjectResponse.builder()
+                            .id(subject.getId())
+                            .name(subject.getName())
+                            .build())
+                .toList();
     }
 
     public Optional<Subject> findSubjectById(Long id) {
