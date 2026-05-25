@@ -30,8 +30,16 @@ public class SubjectService {
                 .toList();
     }
 
-    public Optional<Subject> findSubjectById(Long id) {
-        return subjectRepository.findById(id);
+    public GenericSubjectResponse findSubjectById(Long id) {
+
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No subject found"));
+
+        return GenericSubjectResponse.builder()
+                .id(subject.getId())
+                .name(subject.getName())
+                .build();
+
     }
 
     public Subject saveSubject(Subject subject) {
