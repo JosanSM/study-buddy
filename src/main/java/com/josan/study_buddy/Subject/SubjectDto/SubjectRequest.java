@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 public class SubjectRequest {
     @NotNull
-    private Long userId;
+    private Long subjectId;
     @NotBlank
     private String name;
 }
