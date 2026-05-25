@@ -24,8 +24,12 @@ public class SubjectController {
     }
 
     @GetMapping("/{id}")
-    public Subject getSubjectById(@PathVariable Long id) {
-        return subjectService.findSubjectById(id).orElseThrow();
+    public ResponseEntity<GenericSubjectResponse> getSubjectById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(subjectService.findSubjectById(id));
+        } catch (RuntimeException e) {
+            return  ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/")
