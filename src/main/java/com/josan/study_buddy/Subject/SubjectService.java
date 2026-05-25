@@ -54,19 +54,26 @@ public class SubjectService {
         Subject subject = new Subject();
         User user = userService.findUserById(request.getUserId()).orElseThrow();
 
-        subject.setName(request.getName());
-        subject.setUser(user);
-        return subject;
-    }
-
-    public Subject updateSubject(SubjectRequest request) {
+    public GenericSubjectResponse updateSubjectName(SubjectRequest request) {
         // check if the user exists before doing an update
-        Subject existingSubject = this.findSubjectById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Subject not found"));
+        Subject existingSubject = subjectRepository.findById(request.getSubjectId()).orElse(null);
 
-        existingSubject.setUser(userService.findUserById(request.getUserId()).orElseThrow());
+        if(existingSubject == null) {
+            throw new RuntimeException("Not found");
+        }
+
         existingSubject.setName(request.getName());
 
-        return this.saveSubject(existingSubject);
+        Subject updatedSubject = subjectRepository.save(existingSubject);
+
+        try {
+            return GenericSubjectResponse.builder()
+                    .id(updatedSubject.getId())
+                    .name(updatedSubject.getName())
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Failed to save the subject %s", existingSubject.toString()));
+        }
+
     }
 }

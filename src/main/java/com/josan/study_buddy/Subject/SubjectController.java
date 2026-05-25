@@ -40,11 +40,11 @@ public class SubjectController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Subject> updateSubject(
+    public ResponseEntity<GenericSubjectResponse> updateSubjectName(
             @RequestBody SubjectRequest request) {
 
         try {
-            return ResponseEntity.ok(subjectService.updateSubject(request));
+            return ResponseEntity.ok(subjectService.updateSubjectName(request));
 
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
