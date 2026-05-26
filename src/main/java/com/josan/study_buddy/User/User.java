@@ -3,12 +3,18 @@ package com.josan.study_buddy.User;
 import com.josan.study_buddy.Subject.Subject;
 import com.josan.study_buddy.Topic.Topic;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -44,61 +50,5 @@ public class User {
                 ", user_tier='" + user_tier + '\'' +
                 ", last_updated=" + last_updated +
                 '}';
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUser_tier() {
-        return user_tier;
-    }
-
-    public void setUser_tier(String user_tier) {
-        this.user_tier = user_tier;
-    }
-
-    public Set<Subject> getSubjects() {
-        return subjects;
-    }
-
-    public void setSubjects(Set<Subject> subjects) {
-        this.subjects = subjects;
-    }
-
-    public Set<Topic> getTopics() {
-        return topics;
-    }
-
-    public void setTopics(Set<Topic> topics) {
-        this.topics = topics;
-    }
-
-    public LocalDateTime getLast_updated() {
-        return last_updated;
-    }
-
-    public void setLast_updated(LocalDateTime last_updated) {
-        this.last_updated = last_updated;
     }
 }
