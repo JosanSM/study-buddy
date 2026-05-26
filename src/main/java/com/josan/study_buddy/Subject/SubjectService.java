@@ -1,13 +1,13 @@
 package com.josan.study_buddy.Subject;
+import com.josan.study_buddy.Subject.SubjectDto.AddSubjectRequest;
 import com.josan.study_buddy.Subject.SubjectDto.GenericSubjectResponse;
 import com.josan.study_buddy.Subject.SubjectDto.SubjectRequest;
 import com.josan.study_buddy.User.User;
 import com.josan.study_buddy.User.UserService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class SubjectService {
@@ -42,18 +42,37 @@ public class SubjectService {
 
     }
 
+    // returns an Optional wit the actual entity for methods that rely on methods like .orElseThrow or .isEmpty which the DTOs don't have.
+    public Subject findSubjectEntityById(Long id) {
+        return subjectRepository.findById(id).orElseThrow(()-> new RuntimeException("Subject not found"));
+    }
+
+    @Transactional
     public Subject saveSubject(Subject subject) {
         return subjectRepository.save(subject);
     }
 
+    @Transactional
+    public GenericSubjectResponse addSubject(AddSubjectRequest request) {
+        User user = userService.findUserById(request.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+        Subject subject = new Subject();
+        subject.setName(request.getName());
+        subject.setUser(user);
+
+        this.saveSubject(subject);
+
+        return GenericSubjectResponse.from(subject);
+    }
+
+    @Transactional
     public void deleteSubjectById(Long id) {
+        if(!subjectRepository.existsById(id)) {
+            throw new RuntimeException("Subject not found");
+        }
         subjectRepository.deleteById(id);
     }
 
-    public Subject buildSubject(SubjectRequest request) {
-        Subject subject = new Subject();
-        User user = userService.findUserById(request.getUserId()).orElseThrow();
-
+    @Transactional
     public GenericSubjectResponse updateSubjectName(SubjectRequest request) {
         // check if the user exists before doing an update
         Subject existingSubject = subjectRepository.findById(request.getSubjectId()).orElse(null);
