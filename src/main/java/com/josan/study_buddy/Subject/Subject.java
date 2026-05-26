@@ -3,10 +3,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.josan.study_buddy.Topic.Topic;
 import com.josan.study_buddy.User.User;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.Set;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Subject {
 
     @Id
@@ -22,27 +27,9 @@ public class Subject {
     @OneToMany(mappedBy = "subject")
     private Set<Topic> topic;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+    public Subject(Long id, String name, User user) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
         this.name = name;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
         this.user = user;
     }
 }
