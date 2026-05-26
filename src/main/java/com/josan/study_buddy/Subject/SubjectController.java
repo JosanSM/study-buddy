@@ -1,7 +1,9 @@
 package com.josan.study_buddy.Subject;
 
+import com.josan.study_buddy.Subject.SubjectDto.AddSubjectRequest;
 import com.josan.study_buddy.Subject.SubjectDto.GenericSubjectResponse;
 import com.josan.study_buddy.Subject.SubjectDto.SubjectRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,10 +35,9 @@ public class SubjectController {
     }
 
     @PostMapping("/")
-    public Subject addSubject(@RequestBody SubjectRequest request) {
+    public GenericSubjectResponse addSubject(@Valid @RequestBody AddSubjectRequest request) {
         Subject subject = new Subject();
-        subject = subjectService.buildSubject(request);
-        return subjectService.saveSubject(subject);
+        return subjectService.addSubject(request);
     }
 
     @PutMapping("/")
