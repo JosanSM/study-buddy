@@ -42,7 +42,7 @@ public class TopicService {
     public Topic buildTopic(TopicRequest request) {
         Topic topic = new Topic();
 
-        Subject subject = subjectService.findSubjectById(request.getSubjectId()).orElseThrow();
+        Subject subject = subjectService.findSubjectEntityById(request.getSubjectId());
         User user = userService.findUserById(request.getUserId()).orElseThrow();
 
         topic.setTopicStatus(request.getTopicStatus());
@@ -59,7 +59,7 @@ public class TopicService {
                 .orElseThrow(() -> new RuntimeException(String.format("No topic found with id %d",request.getId())));
 
         User user = userService.findUserById(request.getUserId()).orElseThrow();
-        Subject subject = subjectService.findSubjectById(request.getSubjectId()).orElseThrow();
+        Subject subject = subjectService.findSubjectEntityById(request.getSubjectId());
 
         existing.setTopicStatus(request.getTopicStatus());
         existing.setNotes(request.getNotes());
