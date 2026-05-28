@@ -15,23 +15,19 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    UserService userService;
+    private final UserService userService;
 
-    UserController(UserService userservice) {
-        this.userService = userservice;
+    UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/")
     public ResponseEntity<List<GenericUserResponse>> getAllUsers() {
-
-        return ResponseEntity.ok(
-                userService.findAllUsers()
-        );
+        return ResponseEntity.ok(userService.findAllUsers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-
+    public ResponseEntity<GenericUserResponse> getUserById(@PathVariable Long id) {
         return userService.findUserById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -39,41 +35,31 @@ public class UserController {
 
     @PostMapping("/")
     public ResponseEntity<AddUserResponse> addUser(@Valid @RequestBody AddUserRequest userRequest) {
-        // TODO: Need to validate if theres a user with a given email
-        User user = userService.buildUser(userRequest);
-        userService.saveUser(user);
-
-        URI location = URI.create("users/" + user.getId());
-
+        // TODO: Need to validate if there's a user with a given email
+        AddUserResponse created = userService.createUser(userRequest);
+        URI location = URI.create("users/" + created.getId());
+        
         return ResponseEntity
                 .created(location)
-                .body(AddUserResponse.from(user));
+                .body(created);
     }
 
-    @PutMapping("/") // TODO: should I Refactor my DTO classes to have a better inheritance relationship between them? like, having a base UserRequest/UserResponse and extend those as needed
-    public ResponseEntity<GenericUserResponse> updateUser(@Valid @RequestBody UpdateUserRequest request) { // TODO: clarify whether this type a methods need some type of additional layer fromm the front end to avoid manipulation through dev tools
-        if(!userService.userExists(request.getId())) {
-            return ResponseEntity.notFound().build();
-        }
-
+    @PutMapping("/")
+    public ResponseEntity<GenericUserResponse> updateUser(@Valid @RequestBody UpdateUserRequest request) {
         try {
-            return ResponseEntity.ok(GenericUserResponse.from(userService.updateUser(request)));
+            return ResponseEntity.ok(userService.updateUser(request));
         } catch (RuntimeException e) {
-          return ResponseEntity.internalServerError().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<GenericUserResponse> deleteById(@PathVariable Long id) {
-        if(!userService.userExists(id)) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+        try {
+            userService.deleteUserById(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
-
-        // online I found that it is better to return no content, but this concerns me because it doesn't really confirm if the entity was deleted
-        // I could modify the deleteById method to return a boolean and build validation logic around that. Is that ideal?
-        userService.deleteUserById(id);
-        return ResponseEntity.noContent().build();
     }
 }

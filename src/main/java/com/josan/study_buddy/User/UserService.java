@@ -1,9 +1,11 @@
 package com.josan.study_buddy.User;
 
 import com.josan.study_buddy.User.UserDto.AddUserRequest;
+import com.josan.study_buddy.User.UserDto.AddUserResponse;
 import com.josan.study_buddy.User.UserDto.GenericUserResponse;
 import com.josan.study_buddy.User.UserDto.UpdateUserRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,52 +20,44 @@ public class UserService {
     }
 
     public List<GenericUserResponse> findAllUsers() {
-
         return userRepository.findAll()
                 .stream()
-                .map(user -> GenericUserResponse.builder()
-                        .id(user.getId())
-                        .name(user.getName())
-                        .email(user.getEmail())
-                        .build())
+                .map(GenericUserResponse::from)
                 .toList();
     }
 
-    public Optional<User> findUserById(Long id) {
-        return userRepository.findById(id);
+    public Optional<GenericUserResponse> findUserById(Long id) {
+        return userRepository.findById(id).map(GenericUserResponse::from);
     }
 
-    public User saveUser(User user) {
-        return userRepository.save(user);
+    @Transactional
+    public AddUserResponse createUser(AddUserRequest request) {
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setUser_tier(request.getUserTier());
+        return AddUserResponse.from(userRepository.save(user));
     }
 
+    @Transactional
+    public GenericUserResponse updateUser(UpdateUserRequest request) {
+        User existingUser = userRepository.findById(request.getId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + request.getId()));
+        existingUser.setName(request.getName());
+        existingUser.setEmail(request.getEmail());
+        existingUser.setUser_tier(request.getUserTier()); // TODO: protect user_tier from direct update
+        return GenericUserResponse.from(userRepository.save(existingUser));
+    }
+
+    @Transactional
     public void deleteUserById(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("User not found with id: " + id);
+        }
         userRepository.deleteById(id);
     }
 
-    public Boolean userExists(Long id) {
+    public boolean userExists(Long id) {
         return userRepository.existsById(id);
-    }
-
-    public User updateUser(UpdateUserRequest request) {
-
-        User existingUser = this.findUserById(request.getId()).orElseThrow();
-        existingUser.setName(request.getName());
-        existingUser.setEmail(request.getEmail());
-        existingUser.setUser_tier(request.getUserTier()); // TODO: move this eventually to its own method to avoid users manipulating it
-        try {
-            return this.saveUser(existingUser);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to update the user");
-        }
-    }
-
-    public User buildUser(AddUserRequest userRequest) {
-        User user = new User();
-        user.setEmail(userRequest.getEmail());
-        user.setUser_tier(userRequest.getUserTier());
-        user.setName(userRequest.getName());
-
-        return user;
     }
 }
