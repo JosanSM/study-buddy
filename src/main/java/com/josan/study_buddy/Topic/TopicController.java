@@ -1,12 +1,12 @@
 package com.josan.study_buddy.Topic;
-import com.josan.study_buddy.Subject.SubjectService;
+
+import com.josan.study_buddy.Topic.TopicDto.GenericTopicResponse;
 import com.josan.study_buddy.Topic.TopicDto.TopicRequest;
 import com.josan.study_buddy.Topic.TopicDto.UpdateTopicRequest;
-import com.josan.study_buddy.User.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -21,41 +21,40 @@ public class TopicController {
     }
 
     @GetMapping("/")
-    public List<Topic> getAllTopics() {
-        return topicService.findAllTopics();
+    public ResponseEntity<List<GenericTopicResponse>> getAllTopics() {
+        return ResponseEntity.ok(topicService.findAllTopics());
     }
 
     @GetMapping("/{id}")
-    public Topic getTopicById(@PathVariable Long id) {
-        return topicService.findTopicById(id).orElseThrow();
+    public ResponseEntity<GenericTopicResponse> getTopicById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(topicService.findTopicById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/")
-    public Topic addTopic(@RequestBody TopicRequest request){
-        Topic topic = topicService.buildTopic(request);
-        return topicService.saveTopic(topic);
+    public ResponseEntity<GenericTopicResponse> addTopic(@Valid @RequestBody TopicRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(topicService.addTopic(request));
     }
 
     @PutMapping("/")
-    public ResponseEntity<Topic> updateTopic(
-            @RequestBody UpdateTopicRequest request) {
+    public ResponseEntity<GenericTopicResponse> updateTopic(@Valid @RequestBody UpdateTopicRequest request) {
         try {
             return ResponseEntity.ok(topicService.updateTopic(request));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build(); //TODO: add validation fr not found scenarios, return 404 for those
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
-
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTopicById(@PathVariable Long id) { //TODO: Revise logic - why is it returning no content in happy path?
-        if(!topicService.existsById(id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Topic not found"
-            );
+    public ResponseEntity<Void> deleteTopicById(@PathVariable Long id) {
+        try {
+            topicService.deleteTopicById(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
-        topicService.deleteTopicById(id);
-        return ResponseEntity.noContent().build();
     }
 }
