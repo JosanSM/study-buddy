@@ -4,6 +4,7 @@ import com.josan.study_buddy.Subject.SubjectDto.AddSubjectRequest;
 import com.josan.study_buddy.Subject.SubjectDto.GenericSubjectResponse;
 import com.josan.study_buddy.Subject.SubjectDto.SubjectRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,14 +36,13 @@ public class SubjectController {
     }
 
     @PostMapping("/")
-    public GenericSubjectResponse addSubject(@Valid @RequestBody AddSubjectRequest request) {
-        Subject subject = new Subject();
-        return subjectService.addSubject(request);
+    public ResponseEntity<GenericSubjectResponse> addSubject(@Valid @RequestBody AddSubjectRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(subjectService.addSubject(request));
     }
 
     @PutMapping("/")
     public ResponseEntity<GenericSubjectResponse> updateSubjectName(
-            @RequestBody SubjectRequest request) {
+            @Valid @RequestBody SubjectRequest request) {
 
         try {
             return ResponseEntity.ok(subjectService.updateSubjectName(request));
@@ -53,7 +53,8 @@ public class SubjectController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteSubjectById(@PathVariable Long id){
+    public ResponseEntity<Void> deleteSubjectById(@PathVariable Long id){
         subjectService.deleteSubjectById(id);
+        return ResponseEntity.noContent().build();
     }
 }
