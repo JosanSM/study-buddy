@@ -11,6 +11,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -41,7 +42,7 @@ public class UserRepositoryTests {
     }
 
     // generate unit tests for userRepository
-    // follow the naming convention of methodName_StateUnderTest_ExpectedBehavior
+    // follow the naming convention of
     // Do not mock repository layer
     // Use real H2 database
     // Use DataJpaTest only
@@ -155,8 +156,35 @@ public class UserRepositoryTests {
     }
 
     @Test
-    public void UserRepository_saveUser_ReturnsUpdatedUser() {
+    public void UserRepository_saveUser_UpdatesExistingUser() {
         // Arrange
+        User user = User.builder()
+                .name("original name")
+                .email("original@gmail.com")
+                .user_tier("pro")
+                .build();
+        userRepository.save(user);
+        long savedId = user.getId();
+
+        user.setName("updated name");
+        user.setEmail("updated@gmail.com");
+        user.setUser_tier("premium");
+
+        // Act
+        User updatedUser = userRepository.save(user);
+
+        // Assert
+        Assertions.assertEquals(savedId, updatedUser.getId());
+        Assertions.assertEquals("updated name", updatedUser.getName());
+        Assertions.assertEquals("updated@gmail.com", updatedUser.getEmail());
+        Assertions.assertEquals("premium", updatedUser.getUser_tier());
+        Assertions.assertEquals(1, userRepository.findAll().size());
+    }
+
+    @Test
+    public void UserRepository_saveUser_SetsLastUpdatedOnCreate() {
+        // Arrange
+        LocalDateTime before = LocalDateTime.now().minusSeconds(1);
         User user = User.builder()
                 .name("test user")
                 .email("testemail@gmail.com")
@@ -167,9 +195,7 @@ public class UserRepositoryTests {
         User savedUser = userRepository.save(user);
 
         // Assert
-        Assertions.assertNotNull(savedUser);
-        Assertions.assertEquals("test user", savedUser.getName());
-        Assertions.assertEquals("testemail@gmail.com", savedUser.getEmail());
-        Assertions.assertEquals("pro", savedUser.getUser_tier());
+        Assertions.assertNotNull(savedUser.getLast_updated());
+        Assertions.assertTrue(savedUser.getLast_updated().isAfter(before));
     }
 }
