@@ -57,6 +57,11 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    public User findUserEntityById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
     public boolean userExists(Long id) {
         return userRepository.existsById(id);
     }
