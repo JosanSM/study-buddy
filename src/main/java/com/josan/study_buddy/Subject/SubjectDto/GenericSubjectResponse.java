@@ -1,5 +1,6 @@
 package com.josan.study_buddy.Subject.SubjectDto;
 
+import com.josan.study_buddy.Subject.Subject;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -15,4 +16,11 @@ public class GenericSubjectResponse {
     private Long id;
     @NotBlank
     private String name;
+
+    public static GenericSubjectResponse from (Subject subject) {
+        return new GenericSubjectResponse(
+                subject.getId(),
+                subject.getName()
+        );
+    }
 }
