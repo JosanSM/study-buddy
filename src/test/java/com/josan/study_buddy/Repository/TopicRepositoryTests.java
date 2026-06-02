@@ -4,6 +4,7 @@ import com.josan.study_buddy.Subject.Subject;
 import com.josan.study_buddy.Subject.SubjectRepository;
 import com.josan.study_buddy.Topic.Topic;
 import com.josan.study_buddy.Topic.TopicRepository;
+import com.josan.study_buddy.Topic.TopicStatus;
 import com.josan.study_buddy.User.User;
 import com.josan.study_buddy.User.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -43,7 +44,7 @@ public class TopicRepositoryTests {
                 .build());
     }
 
-    private Topic buildTopic(String title, String notes, String status, User user, Subject subject) {
+    private Topic buildTopic(String title, String notes, TopicStatus status, User user, Subject subject) {
         Topic topic = new Topic();
         topic.setTitle(title);
         topic.setNotes(notes);
@@ -58,7 +59,7 @@ public class TopicRepositoryTests {
         // Arrange
         User user = savedUser();
         Subject subject = savedSubject(user);
-        Topic topic = buildTopic("Introduction to Algebra", "Chapter 1 notes", "IN_PROGRESS", user, subject);
+        Topic topic = buildTopic("Introduction to Algebra", "Chapter 1 notes", TopicStatus.IN_PROGRESS, user, subject);
 
         // Act
         Topic savedTopic = topicRepository.save(topic);
@@ -68,7 +69,7 @@ public class TopicRepositoryTests {
         Assertions.assertNotNull(savedTopic.getId());
         Assertions.assertEquals("Introduction to Algebra", savedTopic.getTitle());
         Assertions.assertEquals("Chapter 1 notes", savedTopic.getNotes());
-        Assertions.assertEquals("IN_PROGRESS", savedTopic.getTopicStatus());
+        Assertions.assertEquals(TopicStatus.IN_PROGRESS, savedTopic.getTopicStatus());
         Assertions.assertEquals(user.getId(), savedTopic.getUser().getId());
         Assertions.assertEquals(subject.getId(), savedTopic.getSubject().getId());
     }
@@ -78,7 +79,7 @@ public class TopicRepositoryTests {
         // Arrange
         User user = savedUser();
         Subject subject = savedSubject(user);
-        Topic topic = buildTopic("Calculus Basics", "Derivatives notes", "NOT_STARTED", user, subject);
+        Topic topic = buildTopic("Calculus Basics", "Derivatives notes", TopicStatus.NOT_STARTED, user, subject);
         topicRepository.save(topic);
 
         // Act
@@ -107,8 +108,8 @@ public class TopicRepositoryTests {
         // Arrange
         User user = savedUser();
         Subject subject = savedSubject(user);
-        Topic topic1 = buildTopic("Topic One", "Notes one", "NOT_STARTED", user, subject);
-        Topic topic2 = buildTopic("Topic Two", "Notes two", "COMPLETED", user, subject);
+        Topic topic1 = buildTopic("Topic One", "Notes one", TopicStatus.NOT_STARTED, user, subject);
+        Topic topic2 = buildTopic("Topic Two", "Notes two", TopicStatus.COMPLETED, user, subject);
         topicRepository.save(topic1);
         topicRepository.save(topic2);
 
@@ -125,7 +126,7 @@ public class TopicRepositoryTests {
         // Arrange
         User user = savedUser();
         Subject subject = savedSubject(user);
-        Topic topic = buildTopic("To Be Deleted", "Some notes", "NOT_STARTED", user, subject);
+        Topic topic = buildTopic("To Be Deleted", "Some notes", TopicStatus.NOT_STARTED, user, subject);
         topicRepository.save(topic);
 
         // Act
@@ -140,7 +141,7 @@ public class TopicRepositoryTests {
         // Arrange
         User user = savedUser();
         Subject subject = savedSubject(user);
-        Topic topic = buildTopic("Existing Topic", "Some notes", "IN_PROGRESS", user, subject);
+        Topic topic = buildTopic("Existing Topic", "Some notes", TopicStatus.IN_PROGRESS, user, subject);
         topicRepository.save(topic);
 
         // Act
@@ -167,17 +168,17 @@ public class TopicRepositoryTests {
         // Arrange
         User user = savedUser();
         Subject subject = savedSubject(user);
-        Topic topic = buildTopic("Old Title", "Old notes", "NOT_STARTED", user, subject);
+        Topic topic = buildTopic("Old Title", "Old notes", TopicStatus.NOT_STARTED, user, subject);
         topicRepository.save(topic);
         topic.setTitle("New Title");
-        topic.setTopicStatus("COMPLETED");
+        topic.setTopicStatus(TopicStatus.COMPLETED);
 
         // Act
         Topic updatedTopic = topicRepository.save(topic);
 
         // Assert
         Assertions.assertEquals("New Title", updatedTopic.getTitle());
-        Assertions.assertEquals("COMPLETED", updatedTopic.getTopicStatus());
+        Assertions.assertEquals(TopicStatus.COMPLETED, updatedTopic.getTopicStatus());
         Assertions.assertEquals(topic.getId(), updatedTopic.getId());
     }
 }
