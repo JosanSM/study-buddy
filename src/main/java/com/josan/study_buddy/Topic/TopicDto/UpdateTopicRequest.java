@@ -1,5 +1,6 @@
 package com.josan.study_buddy.Topic.TopicDto;
 
+import com.josan.study_buddy.Topic.TopicStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,8 +19,8 @@ public class UpdateTopicRequest {
     private String title;
     @NotBlank
     private String notes;
-    @NotBlank
-    private String topicStatus;
+    @NotNull
+    private TopicStatus topicStatus;
     @NotNull
     private Long userId;
     @NotNull
