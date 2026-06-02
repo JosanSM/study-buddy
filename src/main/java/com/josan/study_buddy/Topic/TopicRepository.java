@@ -5,4 +5,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TopicRepository extends JpaRepository<Topic, Long> {
+    boolean existsByTitleAndSubjectId(String title, Long subjectId);
+    boolean existsByTitleAndSubjectIdAndIdNot(String title, Long subjectId, Long id);
 }
