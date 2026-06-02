@@ -48,6 +48,13 @@ public class TopicService {
         User user = userService.findUserEntityById(request.getUserId());
         Subject subject = subjectService.findSubjectEntityById(request.getSubjectId());
 
+        if (subject.getUser().getId() != request.getUserId()) {
+            throw new SubjectUserMismatchException();
+        }
+        if (topicRepository.existsByTitleAndSubjectId(request.getTitle(), request.getSubjectId())) {
+            throw new DuplicateTopicTitleException();
+        }
+
         Topic topic = new Topic();
         topic.setTitle(request.getTitle());
         topic.setNotes(request.getNotes());
@@ -63,6 +70,13 @@ public class TopicService {
         Topic existing = findTopicEntityById(request.getId());
         User user = userService.findUserEntityById(request.getUserId());
         Subject subject = subjectService.findSubjectEntityById(request.getSubjectId());
+
+        if (subject.getUser().getId() != request.getUserId()) {
+            throw new SubjectUserMismatchException();
+        }
+        if (topicRepository.existsByTitleAndSubjectIdAndIdNot(request.getTitle(), request.getSubjectId(), request.getId())) {
+            throw new DuplicateTopicTitleException();
+        }
 
         existing.setTopicStatus(request.getTopicStatus());
         existing.setNotes(request.getNotes());
