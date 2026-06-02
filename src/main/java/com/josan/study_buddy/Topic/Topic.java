@@ -19,7 +19,8 @@ public class Topic {
 
     private String title;
     private String notes;
-    private String topicStatus; //TODO: Update this to use an enum instead
+    @Enumerated(EnumType.STRING)
+    private TopicStatus topicStatus;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

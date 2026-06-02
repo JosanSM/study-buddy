@@ -27,11 +27,7 @@ public class TopicController {
 
     @GetMapping("/{id}")
     public ResponseEntity<GenericTopicResponse> getTopicById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(topicService.findTopicById(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(topicService.findTopicById(id));
     }
 
     @PostMapping("/")
@@ -41,20 +37,12 @@ public class TopicController {
 
     @PutMapping("/")
     public ResponseEntity<GenericTopicResponse> updateTopic(@Valid @RequestBody UpdateTopicRequest request) {
-        try {
-            return ResponseEntity.ok(topicService.updateTopic(request));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(topicService.updateTopic(request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTopicById(@PathVariable Long id) {
-        try {
-            topicService.deleteTopicById(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        topicService.deleteTopicById(id);
+        return ResponseEntity.noContent().build();
     }
 }
