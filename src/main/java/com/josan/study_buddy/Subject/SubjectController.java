@@ -16,23 +16,18 @@ public class SubjectController {
 
     private final SubjectService subjectService;
 
-    public SubjectController(SubjectService subjectService)  {
+    public SubjectController(SubjectService subjectService) {
         this.subjectService = subjectService;
     }
 
     @GetMapping("/")
     public ResponseEntity<List<GenericSubjectResponse>> getAllSubjects() {
-
         return ResponseEntity.ok(subjectService.findAllSubjects());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<GenericSubjectResponse> getSubjectById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(subjectService.findSubjectById(id));
-        } catch (RuntimeException e) {
-            return  ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(subjectService.findSubjectById(id));
     }
 
     @PostMapping("/")
@@ -41,19 +36,12 @@ public class SubjectController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<GenericSubjectResponse> updateSubjectName(
-            @Valid @RequestBody SubjectRequest request) {
-
-        try {
-            return ResponseEntity.ok(subjectService.updateSubjectName(request));
-
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<GenericSubjectResponse> updateSubjectName(@Valid @RequestBody SubjectRequest request) {
+        return ResponseEntity.ok(subjectService.updateSubjectName(request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSubjectById(@PathVariable Long id){
+    public ResponseEntity<Void> deleteSubjectById(@PathVariable Long id) {
         subjectService.deleteSubjectById(id);
         return ResponseEntity.noContent().build();
     }
