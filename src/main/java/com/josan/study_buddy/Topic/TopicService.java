@@ -7,6 +7,9 @@ import com.josan.study_buddy.Topic.TopicDto.TopicRequest;
 import com.josan.study_buddy.Topic.TopicDto.UpdateTopicRequest;
 import com.josan.study_buddy.User.User;
 import com.josan.study_buddy.User.UserService;
+import com.josan.study_buddy.exception.DuplicateTopicTitleException;
+import com.josan.study_buddy.exception.SubjectUserMismatchException;
+import com.josan.study_buddy.exception.TopicNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +39,7 @@ public class TopicService {
     @Transactional(readOnly = true)
     public GenericTopicResponse findTopicById(Long id) {
         Topic topic = topicRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Topic not found with id: " + id));
+                .orElseThrow(() -> new TopicNotFoundException(id));
         return GenericTopicResponse.from(topic);
     }
 
@@ -73,13 +76,14 @@ public class TopicService {
     @Transactional
     public void deleteTopicById(Long id) {
         if (!topicRepository.existsById(id)) {
-            throw new RuntimeException("Topic not found with id: " + id);
+            throw new TopicNotFoundException(id);
         }
         topicRepository.deleteById(id);
     }
 
     private Topic findTopicEntityById(Long id) {
         return topicRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Topic not found with id: " + id));
+                .orElseThrow(() -> new TopicNotFoundException(id));
     }
+
 }
