@@ -28,38 +28,24 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<GenericUserResponse> getUserById(@PathVariable Long id) {
-        return userService.findUserById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(userService.findUserById(id));
     }
 
     @PostMapping("/")
     public ResponseEntity<AddUserResponse> addUser(@Valid @RequestBody AddUserRequest userRequest) {
-        // TODO: Need to validate if there's a user with a given email
         AddUserResponse created = userService.createUser(userRequest);
         URI location = URI.create("users/" + created.getId());
-        
-        return ResponseEntity
-                .created(location)
-                .body(created);
+        return ResponseEntity.created(location).body(created);
     }
 
     @PutMapping("/")
     public ResponseEntity<GenericUserResponse> updateUser(@Valid @RequestBody UpdateUserRequest request) {
-        try {
-            return ResponseEntity.ok(userService.updateUser(request));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(userService.updateUser(request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        try {
-            userService.deleteUserById(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        userService.deleteUserById(id);
+        return ResponseEntity.noContent().build();
     }
 }

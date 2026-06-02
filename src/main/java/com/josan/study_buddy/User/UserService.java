@@ -4,11 +4,12 @@ import com.josan.study_buddy.User.UserDto.AddUserRequest;
 import com.josan.study_buddy.User.UserDto.AddUserResponse;
 import com.josan.study_buddy.User.UserDto.GenericUserResponse;
 import com.josan.study_buddy.User.UserDto.UpdateUserRequest;
+import com.josan.study_buddy.exception.DuplicateEmailException;
+import com.josan.study_buddy.exception.UserNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -26,12 +27,17 @@ public class UserService {
                 .toList();
     }
 
-    public Optional<GenericUserResponse> findUserById(Long id) {
-        return userRepository.findById(id).map(GenericUserResponse::from);
+    public GenericUserResponse findUserById(Long id) {
+        return userRepository.findById(id)
+                .map(GenericUserResponse::from)
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Transactional
     public AddUserResponse createUser(AddUserRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateEmailException();
+        }
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
@@ -42,24 +48,27 @@ public class UserService {
     @Transactional
     public GenericUserResponse updateUser(UpdateUserRequest request) {
         User existingUser = userRepository.findById(request.getId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + request.getId()));
+                .orElseThrow(() -> new UserNotFoundException(request.getId()));
+        if (userRepository.existsByEmailAndIdNot(request.getEmail(), request.getId())) {
+            throw new DuplicateEmailException();
+        }
         existingUser.setName(request.getName());
         existingUser.setEmail(request.getEmail());
-        existingUser.setUser_tier(request.getUserTier()); // TODO: protect user_tier from direct update
+        existingUser.setUser_tier(request.getUserTier());
         return GenericUserResponse.from(userRepository.save(existingUser));
     }
 
     @Transactional
     public void deleteUserById(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found with id: " + id);
+            throw new UserNotFoundException(id);
         }
         userRepository.deleteById(id);
     }
 
     public User findUserEntityById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     public boolean userExists(Long id) {
