@@ -10,7 +10,7 @@ import com.josan.study_buddy.Topic.TopicDto.GenericTopicResponse;
 import com.josan.study_buddy.Topic.TopicDto.TopicRequest;
 import com.josan.study_buddy.Topic.TopicDto.UpdateTopicRequest;
 import com.josan.study_buddy.User.User;
-import com.josan.study_buddy.User.UserService;
+import com.josan.study_buddy.config.SpacedRepetitionProperties;
 import com.josan.study_buddy.exception.DuplicateTopicTitleException;
 import com.josan.study_buddy.exception.SubjectNotFoundException;
 import com.josan.study_buddy.exception.SubjectUserMismatchException;
@@ -21,6 +21,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,10 +36,10 @@ public class TopicServiceTests {
     private TopicRepository topicRepository;
 
     @Mock
-    private UserService userService;
+    private SubjectService subjectService;
 
     @Mock
-    private SubjectService subjectService;
+    private SpacedRepetitionProperties spacedRepetitionProperties;
 
     @InjectMocks
     private TopicService topicService;
@@ -94,16 +96,14 @@ public class TopicServiceTests {
                 .title("Derivatives")
                 .notes("Some notes")
                 .topicStatus(TopicStatus.NOT_STARTED)
-                .userId(1L)
                 .subjectId(1L)
                 .build();
 
-        when(userService.findUserEntityById(1L)).thenReturn(user);
         when(subjectService.findSubjectEntityById(1L)).thenReturn(subject);
         when(topicRepository.existsByTitleAndSubjectId("Derivatives", 1L)).thenReturn(false);
         when(topicRepository.save(any(Topic.class))).thenReturn(saved);
 
-        GenericTopicResponse response = topicService.addTopic(request);
+        GenericTopicResponse response = topicService.addTopic(request, user);
 
         assertNotNull(response);
         verify(topicRepository).save(any(Topic.class));
@@ -118,14 +118,12 @@ public class TopicServiceTests {
                 .title("Derivatives")
                 .notes("notes")
                 .topicStatus(TopicStatus.NOT_STARTED)
-                .userId(2L)
                 .subjectId(1L)
                 .build();
 
-        when(userService.findUserEntityById(2L)).thenReturn(requester);
         when(subjectService.findSubjectEntityById(1L)).thenReturn(subject);
 
-        assertThrows(SubjectUserMismatchException.class, () -> topicService.addTopic(request));
+        assertThrows(SubjectUserMismatchException.class, () -> topicService.addTopic(request, requester));
         verify(topicRepository, never()).save(any());
     }
 
@@ -137,15 +135,13 @@ public class TopicServiceTests {
                 .title("Derivatives")
                 .notes("notes")
                 .topicStatus(TopicStatus.NOT_STARTED)
-                .userId(1L)
                 .subjectId(1L)
                 .build();
 
-        when(userService.findUserEntityById(1L)).thenReturn(user);
         when(subjectService.findSubjectEntityById(1L)).thenReturn(subject);
         when(topicRepository.existsByTitleAndSubjectId("Derivatives", 1L)).thenReturn(true);
 
-        assertThrows(DuplicateTopicTitleException.class, () -> topicService.addTopic(request));
+        assertThrows(DuplicateTopicTitleException.class, () -> topicService.addTopic(request, user));
         verify(topicRepository, never()).save(any());
     }
 
@@ -156,14 +152,12 @@ public class TopicServiceTests {
                 .title("Derivatives")
                 .notes("notes")
                 .topicStatus(TopicStatus.NOT_STARTED)
-                .userId(1L)
                 .subjectId(99L)
                 .build();
 
-        when(userService.findUserEntityById(1L)).thenReturn(user);
         when(subjectService.findSubjectEntityById(99L)).thenThrow(new SubjectNotFoundException(99L));
 
-        assertThrows(SubjectNotFoundException.class, () -> topicService.addTopic(request));
+        assertThrows(SubjectNotFoundException.class, () -> topicService.addTopic(request, user));
     }
 
     // updateTopic
@@ -178,17 +172,15 @@ public class TopicServiceTests {
                 .title("Integrals")
                 .notes("updated notes")
                 .topicStatus(TopicStatus.IN_PROGRESS)
-                .userId(1L)
                 .subjectId(1L)
                 .build();
 
         when(topicRepository.findById(1L)).thenReturn(Optional.of(existing));
-        when(userService.findUserEntityById(1L)).thenReturn(user);
         when(subjectService.findSubjectEntityById(1L)).thenReturn(subject);
         when(topicRepository.existsByTitleAndSubjectIdAndIdNot("Integrals", 1L, 1L)).thenReturn(false);
         when(topicRepository.save(existing)).thenReturn(existing);
 
-        GenericTopicResponse response = topicService.updateTopic(request);
+        GenericTopicResponse response = topicService.updateTopic(request, user);
 
         assertNotNull(response);
         verify(topicRepository).save(existing);
@@ -196,29 +188,46 @@ public class TopicServiceTests {
 
     @Test
     public void updateTopic_TopicNotFound_ThrowsTopicNotFoundException() {
+        User user = buildUser(1L);
         UpdateTopicRequest request = UpdateTopicRequest.builder()
-                .id(99L).title("X").notes("n").topicStatus(TopicStatus.NOT_STARTED).userId(1L).subjectId(1L)
+                .id(99L).title("X").notes("n").topicStatus(TopicStatus.NOT_STARTED).subjectId(1L)
                 .build();
         when(topicRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(TopicNotFoundException.class, () -> topicService.updateTopic(request));
+        assertThrows(TopicNotFoundException.class, () -> topicService.updateTopic(request, user));
     }
 
     @Test
-    public void updateTopic_SubjectUserMismatch_ThrowsSubjectUserMismatchException() {
+    public void updateTopic_TopicOwnerMismatch_ThrowsSubjectUserMismatchException() {
         User owner = buildUser(1L);
         User requester = buildUser(2L);
         Subject subject = buildSubject(1L, owner);
         Topic existing = buildTopic(1L, owner, subject);
         UpdateTopicRequest request = UpdateTopicRequest.builder()
-                .id(1L).title("X").notes("n").topicStatus(TopicStatus.NOT_STARTED).userId(2L).subjectId(1L)
+                .id(1L).title("X").notes("n").topicStatus(TopicStatus.NOT_STARTED).subjectId(1L)
                 .build();
 
         when(topicRepository.findById(1L)).thenReturn(Optional.of(existing));
-        when(userService.findUserEntityById(2L)).thenReturn(requester);
-        when(subjectService.findSubjectEntityById(1L)).thenReturn(subject);
 
-        assertThrows(SubjectUserMismatchException.class, () -> topicService.updateTopic(request));
+        assertThrows(SubjectUserMismatchException.class, () -> topicService.updateTopic(request, requester));
+        verify(topicRepository, never()).save(any());
+    }
+
+    @Test
+    public void updateTopic_SubjectUserMismatch_ThrowsSubjectUserMismatchException() {
+        User user = buildUser(1L);
+        User otherUser = buildUser(2L);
+        Subject subjectOwnedByOther = buildSubject(1L, otherUser);
+        Topic existing = buildTopic(1L, user, buildSubject(2L, user));
+        UpdateTopicRequest request = UpdateTopicRequest.builder()
+                .id(1L).title("X").notes("n").topicStatus(TopicStatus.NOT_STARTED).subjectId(1L)
+                .build();
+
+        when(topicRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(subjectService.findSubjectEntityById(1L)).thenReturn(subjectOwnedByOther);
+
+        assertThrows(SubjectUserMismatchException.class, () -> topicService.updateTopic(request, user));
+        verify(topicRepository, never()).save(any());
     }
 
     @Test
@@ -227,15 +236,14 @@ public class TopicServiceTests {
         Subject subject = buildSubject(1L, user);
         Topic existing = buildTopic(1L, user, subject);
         UpdateTopicRequest request = UpdateTopicRequest.builder()
-                .id(1L).title("Integrals").notes("n").topicStatus(TopicStatus.NOT_STARTED).userId(1L).subjectId(1L)
+                .id(1L).title("Integrals").notes("n").topicStatus(TopicStatus.NOT_STARTED).subjectId(1L)
                 .build();
 
         when(topicRepository.findById(1L)).thenReturn(Optional.of(existing));
-        when(userService.findUserEntityById(1L)).thenReturn(user);
         when(subjectService.findSubjectEntityById(1L)).thenReturn(subject);
         when(topicRepository.existsByTitleAndSubjectIdAndIdNot("Integrals", 1L, 1L)).thenReturn(true);
 
-        assertThrows(DuplicateTopicTitleException.class, () -> topicService.updateTopic(request));
+        assertThrows(DuplicateTopicTitleException.class, () -> topicService.updateTopic(request, user));
     }
 
     // deleteTopicById
@@ -255,5 +263,127 @@ public class TopicServiceTests {
 
         assertThrows(TopicNotFoundException.class, () -> topicService.deleteTopicById(99L));
         verify(topicRepository, never()).deleteById(any());
+    }
+
+    // increaseReviewCount
+
+    @Test
+    public void increaseReviewCount_FirstReview_UsesFirstIntervalAndIncrementsCount() {
+        User user = buildUser(1L);
+        Subject subject = buildSubject(1L, user);
+        Topic topic = buildTopic(1L, user, subject);
+        List<Integer> intervals = List.of(1, 3, 7, 14, 30, 60);
+
+        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
+        when(spacedRepetitionProperties.getIntervals()).thenReturn(intervals);
+        when(topicRepository.save(topic)).thenReturn(topic);
+
+        GenericTopicResponse response = topicService.increaseReviewCount(1L, user);
+
+        assertEquals(1, response.getReviewCount());
+        assertEquals(LocalDate.now(), response.getLastReviewedAt());
+        assertEquals(LocalDate.now().plusDays(1), response.getNextReviewAt());
+    }
+
+    @Test
+    public void increaseReviewCount_SecondReview_UsesSecondInterval() {
+        User user = buildUser(1L);
+        Subject subject = buildSubject(1L, user);
+        Topic topic = Topic.builder()
+                .id(1L).title("Derivatives").notes("notes")
+                .topicStatus(TopicStatus.NOT_STARTED)
+                .user(user).subject(subject)
+                .reviewCount(1)
+                .build();
+        List<Integer> intervals = List.of(1, 3, 7, 14, 30, 60);
+
+        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
+        when(spacedRepetitionProperties.getIntervals()).thenReturn(intervals);
+        when(topicRepository.save(topic)).thenReturn(topic);
+
+        GenericTopicResponse response = topicService.increaseReviewCount(1L, user);
+
+        assertEquals(2, response.getReviewCount());
+        assertEquals(LocalDate.now().plusDays(3), response.getNextReviewAt());
+    }
+
+    @Test
+    public void increaseReviewCount_ReviewCountExceedsIntervals_UsesLastInterval() {
+        User user = buildUser(1L);
+        Subject subject = buildSubject(1L, user);
+        Topic topic = Topic.builder()
+                .id(1L).title("Derivatives").notes("notes")
+                .topicStatus(TopicStatus.NOT_STARTED)
+                .user(user).subject(subject)
+                .reviewCount(100)
+                .build();
+        List<Integer> intervals = List.of(1, 3, 7, 14, 30, 60);
+
+        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
+        when(spacedRepetitionProperties.getIntervals()).thenReturn(intervals);
+        when(topicRepository.save(topic)).thenReturn(topic);
+
+        GenericTopicResponse response = topicService.increaseReviewCount(1L, user);
+
+        assertEquals(101, response.getReviewCount());
+        assertEquals(LocalDate.now().plusDays(60), response.getNextReviewAt());
+    }
+
+    @Test
+    public void increaseReviewCount_WrongUser_ThrowsSubjectUserMismatchException() {
+        User owner = buildUser(1L);
+        User requester = buildUser(2L);
+        Subject subject = buildSubject(1L, owner);
+        Topic topic = buildTopic(1L, owner, subject);
+
+        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
+
+        assertThrows(SubjectUserMismatchException.class,
+                () -> topicService.increaseReviewCount(1L, requester));
+        verify(topicRepository, never()).save(any());
+    }
+
+    @Test
+    public void increaseReviewCount_TopicNotFound_ThrowsTopicNotFoundException() {
+        User user = buildUser(1L);
+        when(topicRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(TopicNotFoundException.class,
+                () -> topicService.increaseReviewCount(99L, user));
+    }
+
+    // findDueTopics
+
+    @Test
+    public void findDueTopics_WithDueTopics_ReturnsDueTopics() {
+        User user = buildUser(1L);
+        Subject subject = buildSubject(1L, user);
+        Topic due = Topic.builder()
+                .id(1L).title("Derivatives").notes("notes")
+                .topicStatus(TopicStatus.IN_PROGRESS)
+                .user(user).subject(subject)
+                .reviewCount(2)
+                .lastReviewedAt(LocalDate.now().minusDays(3))
+                .nextReviewAt(LocalDate.now().minusDays(1))
+                .build();
+
+        when(topicRepository.findByUserIdAndNextReviewAtLessThanEqual(1L, LocalDate.now()))
+                .thenReturn(List.of(due));
+
+        List<GenericTopicResponse> result = topicService.findDueTopics(user);
+
+        assertEquals(1, result.size());
+        assertEquals(1L, result.get(0).getId());
+    }
+
+    @Test
+    public void findDueTopics_NoDueTopics_ReturnsEmptyList() {
+        User user = buildUser(1L);
+        when(topicRepository.findByUserIdAndNextReviewAtLessThanEqual(1L, LocalDate.now()))
+                .thenReturn(List.of());
+
+        List<GenericTopicResponse> result = topicService.findDueTopics(user);
+
+        assertTrue(result.isEmpty());
     }
 }
