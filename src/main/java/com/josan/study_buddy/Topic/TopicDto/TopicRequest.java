@@ -20,7 +20,5 @@ public class TopicRequest {
     @NotNull
     private TopicStatus topicStatus;
     @NotNull
-    private Long userId;
-    @NotNull
     private Long subjectId;
 }

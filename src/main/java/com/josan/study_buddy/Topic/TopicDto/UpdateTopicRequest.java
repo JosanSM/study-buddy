@@ -22,7 +22,5 @@ public class UpdateTopicRequest {
     @NotNull
     private TopicStatus topicStatus;
     @NotNull
-    private Long userId;
-    @NotNull
     private Long subjectId;
 }
