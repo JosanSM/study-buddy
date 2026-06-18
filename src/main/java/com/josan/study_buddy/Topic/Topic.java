@@ -6,6 +6,8 @@ import com.josan.study_buddy.User.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Setter
@@ -21,6 +23,10 @@ public class Topic {
     private String notes;
     @Enumerated(EnumType.STRING)
     private TopicStatus topicStatus;
+
+    private int reviewCount;
+    private LocalDate lastReviewedAt;
+    private LocalDate nextReviewAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
