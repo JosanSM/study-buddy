@@ -4,6 +4,8 @@ import com.josan.study_buddy.Topic.Topic;
 import com.josan.study_buddy.Topic.TopicStatus;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @Builder
@@ -16,6 +18,9 @@ public class GenericTopicResponse {
     private TopicStatus topicStatus;
     private Long subjectId;
     private Long userId;
+    private int reviewCount;
+    private LocalDate lastReviewedAt;
+    private LocalDate nextReviewAt;
 
     public static GenericTopicResponse from(Topic topic) {
         return GenericTopicResponse.builder()
@@ -25,6 +30,9 @@ public class GenericTopicResponse {
                 .topicStatus(topic.getTopicStatus())
                 .subjectId(topic.getSubject() != null ? topic.getSubject().getId() : null)
                 .userId(topic.getUser() != null ? topic.getUser().getId() : null)
+                .reviewCount(topic.getReviewCount())
+                .lastReviewedAt(topic.getLastReviewedAt())
+                .nextReviewAt(topic.getNextReviewAt())
                 .build();
     }
 }
